@@ -586,6 +586,9 @@ public class ProfileFragment extends Fragment {
         if (user != null) {
             //mProfileTv.setText(user.getEmail());
             uid = user.getUid();
+//            String name = user.getDisplayName();
+////            nameTv.setText(name);
+
             return;
         } else {
             startActivity(new Intent(getActivity(), MainActivity.class));
