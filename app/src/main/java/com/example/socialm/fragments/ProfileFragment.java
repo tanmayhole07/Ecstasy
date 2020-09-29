@@ -548,6 +548,7 @@ public class ProfileFragment extends Fragment {
                                     Toast.makeText(getActivity(), "Error Updating Image", Toast.LENGTH_SHORT).show();
                                 }
                             });
+
                     if (profileorCoverPhoto.equals("image")){
                         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Posts");
                         Query query = ref.orderByChild("uid").equalTo(uid);
@@ -584,10 +585,7 @@ public class ProfileFragment extends Fragment {
     private void checkUserStatus() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            //mProfileTv.setText(user.getEmail());
             uid = user.getUid();
-//            String name = user.getDisplayName();
-////            nameTv.setText(name);
 
             return;
         } else {

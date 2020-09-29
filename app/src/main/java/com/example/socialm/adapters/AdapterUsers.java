@@ -70,7 +70,7 @@ public class AdapterUsers extends RecyclerView.Adapter<AdapterUsers.MyHolder>{
                     public void onClick(DialogInterface dialogInterface, int which) {
                         if (which == 0){
                             Intent intent = new Intent(context, ThereProfileActivity.class);
-                            intent.putExtra("hisUid",hisUID);
+                            intent.putExtra("uid",hisUID);
                             context.startActivity(intent);
                         }if (which==1){
 

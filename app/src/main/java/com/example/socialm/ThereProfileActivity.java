@@ -115,13 +115,19 @@ public class ThereProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void onStart() {
         onBackPressed();
         super.onStart();
     }
 
-    private void loadHistPosts() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+    private void loadHistPosts()  {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(ThereProfileActivity.this);
         layoutManager.setStackFromEnd(true);
         layoutManager.setReverseLayout(true);
 
@@ -151,7 +157,7 @@ public class ThereProfileActivity extends AppCompatActivity {
 
     private void searchHistPosts(String searchQuery){
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(ThereProfileActivity.this);
         layoutManager.setStackFromEnd(true);
         layoutManager.setReverseLayout(true);
 
