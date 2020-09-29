@@ -153,7 +153,7 @@ public class AddPostActivity extends AppCompatActivity {
         String timeStamp = String.valueOf(System.currentTimeMillis());
         String filePathAndName = "Posts/" + "post_" + timeStamp;
 
-        if (!uri.equals("noImage")){
+         if (!uri.equals("noImage")){
             StorageReference ref = FirebaseStorage.getInstance().getReference().child(filePathAndName);
             ref.putFile(Uri.parse(uri))
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -334,7 +334,6 @@ public class AddPostActivity extends AppCompatActivity {
         if (user!= null){
             email = user.getEmail();
             uid = user.getUid();
-
         }
         else{
             startActivity(new Intent(this, MainActivity.class));

@@ -184,43 +184,47 @@ public class ProfileFragment extends Fragment {
         checkUserStatus();
         loadMyPosts();
 
-        Query query = databaseReference.orderByChild("email").equalTo(user.getEmail());
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        try {
+            Query query = databaseReference.orderByChild("email").equalTo(user.getEmail());
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
-                    String name = "" + ds.child("name").getValue();
-                    String email = "" + ds.child("email").getValue();
-                    String phone = "" + ds.child("phone").getValue();
-                    String image = "" + ds.child("image").getValue();
-                    String cover = "" + ds.child("cover").getValue();
+                        String name = "" + ds.child("name").getValue();
+                        String email = "" + ds.child("email").getValue();
+                        String phone = "" + ds.child("phone").getValue();
+                        String image = "" + ds.child("image").getValue();
+                        String cover = "" + ds.child("cover").getValue();
 
-                    nameTv.setText(name);
-                    emailTv.setText(email);
-                    phoneTv.setText(phone);
+                        nameTv.setText(name);
+                        emailTv.setText(email);
+                        phoneTv.setText(phone);
 
-                    try {
-                        Picasso.get().load(image).into(avatarIv);
-                    } catch (Exception e) {
-                        Picasso.get().load(R.drawable.ic_default_image).into(avatarIv);
+                        try {
+                            Picasso.get().load(image).into(avatarIv);
+                        } catch (Exception e) {
+                            Picasso.get().load(R.drawable.ic_default_image).into(avatarIv);
+                        }
+                        try {
+                            Picasso.get().load(cover).into(coverIv);
+                        } catch (Exception e) {
+
+                        }
+
                     }
-                    try {
-                        Picasso.get().load(cover).into(coverIv);
-                    } catch (Exception e) {
+                }
 
-                    }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            });
 
-            }
+        }catch (Exception e){ }
 
-        });
 
         return view;
     }
@@ -567,6 +571,26 @@ public class ProfileFragment extends Fragment {
                             }
                         });
                     }
+
+
+//                    if (profileorCoverPhoto.equals("image")){
+//                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Posts");
+//                        Query query = ref.orderByChild("uid").equalTo(uid);
+//                        query.addValueEventListener(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                for (DataSnapshot ds : dataSnapshot.getChildren()){
+//                                    String child = ds.getKey();
+//                                    dataSnapshot.getRef().child(child).child("uDp").setValue(downloadUri.toString());
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                            }
+//                        });
+//                    }
 
                 } else {
                     pd.show();
