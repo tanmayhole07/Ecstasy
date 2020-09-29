@@ -49,7 +49,7 @@ public class ThereProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_there_profile2);
+        setContentView(R.layout.activity_there_profile);
         Toast.makeText(this, "Profile fragment clicked", Toast.LENGTH_SHORT).show();
 
         ActionBar actionBar = getSupportActionBar();
