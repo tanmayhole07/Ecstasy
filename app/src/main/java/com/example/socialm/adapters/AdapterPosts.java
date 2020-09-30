@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialm.AddPostActivity;
 import com.example.socialm.R;
 import com.example.socialm.ThereProfileActivity;
 import com.example.socialm.models.ModelPost;
@@ -152,6 +153,8 @@ public class AdapterPosts extends RecyclerView.Adapter<AdapterPosts.MyHolder>{
 
         if (uid.equals(myUid)){
             popupMenu.getMenu().add(Menu.NONE,0,0,"Delete");
+            popupMenu.getMenu().add(Menu.NONE,1,0,"Edit Post");
+
         }
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -160,6 +163,12 @@ public class AdapterPosts extends RecyclerView.Adapter<AdapterPosts.MyHolder>{
                 int id = menuItem.getItemId();
                 if (id == 0){
                     beginDelete(pId, pImage);
+                }
+                else if (id == 1){
+                    Intent intent = new Intent(context, AddPostActivity.class);
+                    intent.putExtra("key","editPost");
+                    intent.putExtra("editPostId",pId);
+                    context.startActivity(intent);
                 }
                 return false;
             }
