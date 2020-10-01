@@ -134,8 +134,8 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void searchPosts(String searchQuery){
 
+    private void searchPosts(String searchQuery){
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Posts");
         ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -188,7 +188,10 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 if (!TextUtils.isEmpty(s)){
-                    searchPosts(s);
+                    try {
+                        searchPosts(s);
+                    }catch (Exception e){   }
+
                 }else {
                     loadPosts();
                 }
@@ -199,7 +202,9 @@ public class HomeFragment extends Fragment {
             public boolean onQueryTextChange(String s) {
 
                 if (!TextUtils.isEmpty(s)){
-                    searchPosts(s);
+                    try {
+                        searchPosts(s);
+                    }catch (Exception e){   }
                 }else {
                     loadPosts();
                 }
