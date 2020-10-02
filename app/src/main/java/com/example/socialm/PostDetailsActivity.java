@@ -2,6 +2,7 @@ package com.example.socialm;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -19,9 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialm.adapters.AdapterComments;
+import com.example.socialm.models.ModelComment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,8 +42,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 public class PostDetailsActivity extends AppCompatActivity {
@@ -61,6 +69,10 @@ public class PostDetailsActivity extends AppCompatActivity {
     EditText commentEt;
     ImageButton sendBtn;
     ImageView cAvatarIv;
+    RecyclerView recyclerViewcomments;
+
+    List<ModelComment> commentList;
+    AdapterComments adapterComments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +99,7 @@ public class PostDetailsActivity extends AppCompatActivity {
         likeBtn = findViewById(R.id.likeBtn);
         shareBtn = findViewById(R.id.shareBtn);
         profileLayout = findViewById(R.id.profileLayout);
+        recyclerViewcomments = findViewById(R.id.recyclerViewComments);
 
         commentEt = findViewById(R.id.commentEt);
         sendBtn = findViewById(R.id.sendBtn);
@@ -101,6 +114,8 @@ public class PostDetailsActivity extends AppCompatActivity {
         setLikes();
 
         actionBar.setSubtitle("SignedIn as: "+myEmail);
+        
+        loadComments();
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +132,7 @@ public class PostDetailsActivity extends AppCompatActivity {
         });
 
         moreBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View view) {
                 showMoreOptions();
@@ -124,6 +140,33 @@ public class PostDetailsActivity extends AppCompatActivity {
         });
     }
 
+    private void loadComments() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerViewcomments.setLayoutManager(layoutManager);
+        commentList = new ArrayList<>();
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Posts").child(postId).child("Comments");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                commentList.clear();
+                for (DataSnapshot ds : dataSnapshot.getChildren()){
+                    ModelComment modelComment = ds.getValue(ModelComment.class);
+                    commentList.add(modelComment);
+
+                    adapterComments = new AdapterComments(getApplicationContext(), commentList, myUid, postId);
+                    recyclerViewcomments.setAdapter(adapterComments);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void showMoreOptions() {
         PopupMenu popupMenu = new PopupMenu(this, moreBtn, Gravity.END);
 
