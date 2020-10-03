@@ -11,11 +11,24 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.socialm.MainActivity;
 import com.example.socialm.R;
+import com.example.socialm.adapters.AdapterChatList;
+import com.example.socialm.models.ModelChat;
+import com.example.socialm.models.ModelChatList;
+import com.example.socialm.models.ModelUsers;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,7 +45,15 @@ public class ChatListFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
     FirebaseAuth firebaseAuth;
+    RecyclerView recyclerView;
+    List<ModelChatList> chatListList;
+    List<ModelUsers> usersList;
+    DatabaseReference reference;
+    FirebaseUser currentUser;
+
+    AdapterChatList adapterChatList;
 
     public ChatListFragment() {
         // Required empty public constructor
@@ -72,8 +93,94 @@ public class ChatListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_chat_list, container, false);
         firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        recyclerView = view.findViewById(R.id.recyclerView);
+
+        chatListList = new ArrayList<>();
+        reference = FirebaseDatabase.getInstance().getReference("ChatList").child(currentUser.getUid());
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                chatListList.clear();
+                for (DataSnapshot ds : dataSnapshot.getChildren()){
+                    ModelChatList chatList = ds.getValue(ModelChatList.class);
+                    chatListList.add(chatList);
+                }
+                loadChats();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         return view;
+    }
+
+    private void loadChats() {
+        usersList = new ArrayList<>();
+        reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                usersList.clear();
+                for (DataSnapshot ds : dataSnapshot.getChildren()){
+                    ModelUsers user = ds.getValue(ModelUsers.class);
+                    for (ModelChatList chatList: chatListList){
+                        if (user.getUid() != null && user.getUid().equals(chatList.getId())){
+                            usersList.add(user);
+                            break;
+                        }
+                    }
+                    adapterChatList = new AdapterChatList(getContext(), usersList);
+                    recyclerView.setAdapter(adapterChatList);
+
+                    for (int i =0; i<usersList.size(); i++){
+                        lastMessage(usersList.get(i).getUid());
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void lastMessage(final String userId) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String theLastMessage = "default";
+                for (DataSnapshot ds : dataSnapshot.getChildren()){
+                    ModelChat chat = ds.getValue(ModelChat.class);
+                    if (chat==null){
+                        continue;
+                    }
+                    String sender = chat.getSender();
+                    String receiver = chat.getReceiver();
+                    if (sender == null || receiver == null){
+                        continue;
+                    }
+                    if (chat.getReceiver().equals(currentUser.getUid())&& chat.getSender().equals(userId)||
+                            chat.getReceiver().equals(userId)&& chat.getSender().equals(currentUser.getUid())){
+
+                        theLastMessage = chat.getMessage();
+                    }
+                }
+                adapterChatList.setLastMessageMap(userId, theLastMessage);
+                adapterChatList.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void checkUserStatus(){

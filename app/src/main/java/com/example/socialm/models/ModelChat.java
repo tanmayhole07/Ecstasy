@@ -10,13 +10,13 @@ public class ModelChat {
     public ModelChat() {
     }
 
-    public ModelChat(String name,String message, String receiver, String sender, String timestamp, boolean isSeen) {
+    public ModelChat(String name, String message, String receiver, String sender, String timestamp, boolean isSeen) {
+        this.name = name;
         this.message = message;
         this.receiver = receiver;
         this.sender = sender;
         this.timestamp = timestamp;
         this.isSeen = isSeen;
-        this.name = name;
     }
 
     public String getName() {
@@ -58,14 +58,6 @@ public class ModelChat {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
-
-//    public boolean isSeen() {
-//        return isSeen;
-//    }
-
-//    public void setSeen(boolean seen) {
-//        isSeen = seen;
-//    }
 
     @PropertyName("isSeen")
     public boolean isSeen() {
