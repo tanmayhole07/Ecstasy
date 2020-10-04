@@ -2,6 +2,9 @@ package com.example.socialm;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +46,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -138,6 +144,65 @@ public class PostDetailsActivity extends AppCompatActivity {
                 showMoreOptions();
             }
         });
+
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String pTitle = pTitleTv.getText().toString().trim();
+                String pDescription = pDescriptionTv.getText().toString().trim();
+
+                BitmapDrawable bitmapDrawable = (BitmapDrawable) pImageIv.getDrawable();
+                if (bitmapDrawable == null){
+                    //post without image
+                    shareTextOnly(pTitle, pDescription);
+                }else {
+                    // Post with image
+                    Bitmap bitmap = bitmapDrawable.getBitmap();
+                    shareImageAndIext(pTitle, pDescription, bitmap);
+                }
+            }
+        });
+    }
+
+    private void shareImageAndIext(String pTitle, String pDescription, Bitmap bitmap) {
+        String shareBody = pTitle + "\n" + pDescription;
+        Uri uri = saveImageToShare(bitmap);
+
+        Intent sIntent = new Intent(Intent.ACTION_SEND);
+        sIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        sIntent.putExtra(Intent.EXTRA_TEXT,shareBody);
+        sIntent.putExtra(Intent.EXTRA_SUBJECT,"Subject Here");
+        sIntent.setType("image/png");
+        startActivity(Intent.createChooser(sIntent,"Share Via"));
+    }
+
+    private Uri saveImageToShare(Bitmap bitmap) {
+        File imageFolder = new File(getCacheDir(), "images");
+        Uri uri = null;
+        try{
+            imageFolder.mkdirs();
+            File file = new File(imageFolder, "shared_image.png");
+
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream);
+            stream.flush();
+            stream.close();
+            uri = FileProvider.getUriForFile(this, "com.example.socialm.fileprovider", file);
+
+        } catch (Exception e) {
+            Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return uri;
+    }
+
+    private void shareTextOnly(String pTitle, String pDescription) {
+        String shareBody = pTitle +"\n"+ pDescription;
+
+        Intent sIntent = new Intent(Intent.ACTION_SEND);
+        sIntent.setType("text/plain");
+        sIntent.putExtra(Intent.EXTRA_SUBJECT, "Subject Here");
+        sIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(sIntent,"Share Via"));
     }
 
     private void loadComments() {
