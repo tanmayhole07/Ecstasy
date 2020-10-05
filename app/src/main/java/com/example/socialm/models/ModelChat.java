@@ -4,19 +4,30 @@ import com.google.firebase.database.PropertyName;
 
 public class ModelChat {
 
-    String name, message, receiver, sender, timestamp;
+    String name, message, receiver, sender, timestamp, type;
     boolean isSeen;
 
     public ModelChat() {
     }
 
-    public ModelChat(String name, String message, String receiver, String sender, String timestamp, boolean isSeen) {
+
+
+    public ModelChat(String name, String message, String receiver, String sender, String timestamp, String type, boolean isSeen) {
         this.name = name;
         this.message = message;
         this.receiver = receiver;
         this.sender = sender;
         this.timestamp = timestamp;
+        this.type = type;
         this.isSeen = isSeen;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {
