@@ -11,12 +11,24 @@
         android:allowBackup="true"
         android:icon="@drawable/ecstasy"
         android:label="Ecstasy"
+        android:name=".MyApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".PostDetailsActivity"></activity>
         <activity android:name=".ThereProfileActivity" />
-        <activity android:name=".AddPostActivity" />
+        <activity android:name=".AddPostActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ChatActivity"
             android:theme="@style/AppThemeNo" />
