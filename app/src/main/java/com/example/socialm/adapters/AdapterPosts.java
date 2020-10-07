@@ -217,7 +217,7 @@ public class AdapterPosts extends RecyclerView.Adapter<AdapterPosts.MyHolder>{
         hashMap.put("sUid", myUid);
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-        ref.child(hisUid).child("Notification").child(timestamp).setValue(hashMap)
+        ref.child(hisUid).child("Notifications").child(timestamp).setValue(hashMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

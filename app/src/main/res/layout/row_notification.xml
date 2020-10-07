@@ -17,7 +17,7 @@
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:id="@+id/acatarIv"
+            android:id="@+id/avatarIv"
             android:src="@drawable/ic_default_img"/>
 
         <LinearLayout

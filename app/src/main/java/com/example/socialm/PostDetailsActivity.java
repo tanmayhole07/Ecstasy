@@ -175,7 +175,7 @@ public class PostDetailsActivity extends AppCompatActivity {
         hashMap.put("sUid", myUid);
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
-        ref.child(hisUid).child("Notification").child(timestamp).setValue(hashMap)
+        ref.child(hisUid).child("Notifications").child(timestamp).setValue(hashMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -189,6 +189,7 @@ public class PostDetailsActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void shareImageAndIext(String pTitle, String pDescription, Bitmap bitmap) {
         String shareBody = pTitle + "\n" + pDescription;

@@ -1,18 +1,26 @@
 package com.example.socialm.adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialm.PostDetailsActivity;
 import com.example.socialm.R;
 import com.example.socialm.models.ModelNotification;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,6 +35,14 @@ import java.util.Locale;
 public class AdapterNotification extends RecyclerView.Adapter<AdapterNotification.HolderNotification> {
     private Context context;
     private ArrayList<ModelNotification> notificationsList;
+
+    public AdapterNotification(Context context, ArrayList<ModelNotification> notificationsList) {
+        this.context = context;
+        this.notificationsList = notificationsList;
+
+        firebaseAuth = FirebaseAuth.getInstance();
+    }
+    FirebaseAuth firebaseAuth;
 
     @NonNull
     @Override
@@ -43,12 +59,15 @@ public class AdapterNotification extends RecyclerView.Adapter<AdapterNotificatio
         String name = model.getsName();
         String notification  = model.getNotification();
         String image = model.getsImage();
-        String timestamp = model.getTimeStamp();
+        String timestamp = model.getTimestamp();
         String senderUid = model.getsUid();
+        String pId = model.getpId();
 
-        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-        cal.setTimeInMillis(Long.parseLong(timestamp));
-        String pTime = DateFormat.format("dd/MM/yyyy hh:mm aa", cal).toString();
+
+        Calendar calendar = Calendar.getInstance(Locale.getDefault());
+        calendar.setTimeInMillis(Long.parseLong(timestamp));
+        String pTime = DateFormat.format("dd/MM/yyyy hh:mm:aa", calendar).toString();
+
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         reference.orderByChild("uid").equalTo(senderUid)
@@ -59,6 +78,10 @@ public class AdapterNotification extends RecyclerView.Adapter<AdapterNotificatio
                             String name = ""+ds.child("name").getValue();
                             String image = ""+ds.child("image").getValue();
                             String email = ""+ds.child("email").getValue();
+
+                            model.setsName(name);
+                            model.setsEmail(email);
+                            model.setsImage(image);
 
                             holder.nameTv.setText(name);
                             try {
@@ -78,6 +101,48 @@ public class AdapterNotification extends RecyclerView.Adapter<AdapterNotificatio
         holder.notificationTv.setText(notification);
         holder.timeTv.setText(pTime);
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, PostDetailsActivity.class);
+                intent.putExtra("postId",pId);
+                context.startActivity(intent);
+            }
+        });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Delete");
+                builder.setMessage("Are you sure to delete this notification ?");
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+                        ref.child(firebaseAuth.getUid()).child("Notifications").child(timestamp)
+                                .removeValue()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(context, "Notification deleted...", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                    }
+                });
+                builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
+                builder.create().show();
+                return false;
+            }
+        });
     }
 
     @Override

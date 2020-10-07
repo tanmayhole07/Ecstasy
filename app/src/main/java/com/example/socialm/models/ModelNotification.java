@@ -1,14 +1,14 @@
 package com.example.socialm.models;
 
 public class ModelNotification {
-    String pId, timeStamp, notification, sUid, sName, sEmail, sImage, pUid;
+    String pId, timestamp, notification, sUid, sName, sEmail, sImage, pUid;
 
     public ModelNotification() {
     }
 
-    public ModelNotification(String pId, String timeStamp, String notification, String sUid, String sName, String sEmail, String sImage, String pUid) {
+    public ModelNotification(String pId, String timestamp, String notification, String sUid, String sName, String sEmail, String sImage, String pUid) {
         this.pId = pId;
-        this.timeStamp = timeStamp;
+        this.timestamp = timestamp;
         this.notification = notification;
         this.sUid = sUid;
         this.sName = sName;
@@ -25,12 +25,12 @@ public class ModelNotification {
         this.pId = pId;
     }
 
-    public String getTimeStamp() {
-        return timeStamp;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getNotification() {
