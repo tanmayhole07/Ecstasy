@@ -162,6 +162,15 @@ public class PostDetailsActivity extends AppCompatActivity {
                 }
             }
         });
+
+        pLikesTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(PostDetailsActivity.this, PostLikedByActivity.class);
+                intent.putExtra("postId", postId);
+                startActivity(intent);
+            }
+        });
     }
 
     private void addToHisNotifications(String hisUid, String pId, String notification){

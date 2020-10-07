@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.socialm.AddPostActivity;
 import com.example.socialm.PostDetailsActivity;
+import com.example.socialm.PostLikedByActivity;
 import com.example.socialm.R;
 import com.example.socialm.ThereProfileActivity;
 import com.example.socialm.models.ModelPost;
@@ -200,6 +201,15 @@ public class AdapterPosts extends RecyclerView.Adapter<AdapterPosts.MyHolder>{
             public void onClick(View view) {
                 Intent intent = new Intent(context, ThereProfileActivity.class);
                 intent.putExtra("uid",uid);
+                context.startActivity(intent);
+            }
+        });
+
+        myHolder.pLikesTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, PostLikedByActivity.class);
+                intent.putExtra("postId", pId);
                 context.startActivity(intent);
             }
         });
