@@ -1,4 +1,4 @@
-package com.example.socialm;
+package com.example.socialm.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialm.R;
 import com.example.socialm.adapters.AdapterNotification;
 import com.example.socialm.models.ModelNotification;
 import com.google.firebase.auth.FirebaseAuth;

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialm.GroupCreateActivity;
 import com.example.socialm.MainActivity;
 import com.example.socialm.R;
 import com.example.socialm.adapters.AdapterUsers;
@@ -213,6 +214,10 @@ public class UsersFragment extends Fragment {
         if (id==R.id.action_logout) {
             firebaseAuth.signOut();
             checkUserStatus();
+        }
+
+        else if (id == R.id.action_create_group){
+            startActivity(new Intent(getActivity(), GroupCreateActivity.class));
         }
             return super.onOptionsItemSelected(item);
 

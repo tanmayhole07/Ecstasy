@@ -14,4 +14,9 @@
         android:title="Add Post"
         app:showAsAction="always"
         android:icon="@drawable/ic_add_white"/>
+
+    <item android:id="@+id/action_create_group"
+        android:title="Create Group"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_creategroup_white"/>
 </menu>

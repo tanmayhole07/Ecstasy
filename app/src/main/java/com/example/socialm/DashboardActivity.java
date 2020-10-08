@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.socialm.fragments.ChatListFragment;
 import com.example.socialm.fragments.HomeFragment;
+import com.example.socialm.fragments.NotificationFragment;
 import com.example.socialm.fragments.ProfileFragment;
 import com.example.socialm.fragments.UsersFragment;
 import com.example.socialm.notifications.Token;
