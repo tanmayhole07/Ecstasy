@@ -77,7 +77,6 @@ public class GroupChatActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 String message = messageEt.getText().toString().trim();
-
                 if (TextUtils.isEmpty(message)){
                     Toast.makeText(GroupChatActivity.this, "Can't send empty message...", Toast.LENGTH_SHORT).show();
                 }else {

@@ -208,6 +208,7 @@ public class GroupChatFragment extends Fragment {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user== null){
             startActivity(new Intent(getActivity(), MainActivity.class));
+
             getActivity().finish();
         }
 
