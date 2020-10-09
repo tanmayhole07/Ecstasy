@@ -37,7 +37,6 @@
             android:layout_below="@+id/groupTitleTv"
             android:layout_marginStart="4dp"
             android:text="Sender Name"
-            android:textColor="@color/colorBlack"
             android:layout_toRightOf="@+id/groupIconIv"
             android:layout_marginLeft="4dp" />
 

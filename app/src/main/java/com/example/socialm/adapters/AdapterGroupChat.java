@@ -25,7 +25,7 @@ import java.util.Locale;
 
 public class AdapterGroupChat extends  RecyclerView.Adapter<AdapterGroupChat.HolderGroupChat>{
     private static final int MSG_TYPE_LEFT = 0;
-    private static final int MSG_TYPE_RIGHT = 0;
+    private static final int MSG_TYPE_RIGHT = 1;
 
     private Context context;
     private ArrayList<ModelGroupChat> modelGroupChatsList;
