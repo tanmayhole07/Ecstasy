@@ -82,7 +82,6 @@ public class AdapterChat extends RecyclerView.Adapter<AdapterChat.MyHolder> {
 
             Picasso.get().load(message).placeholder(R.drawable.ic_image_black).into(myHolder.messageIv);
         }
-        myHolder.messageTv.setText(message);
         myHolder.timeTv.setText(dateTime);
         try {
             Picasso.get().load(imageUrl).into(myHolder.profileIv);

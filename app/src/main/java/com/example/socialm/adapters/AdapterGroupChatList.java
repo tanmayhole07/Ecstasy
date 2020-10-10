@@ -87,12 +87,18 @@ public class AdapterGroupChatList extends RecyclerView.Adapter<AdapterGroupChatL
                             String message = ""+ds.child("message").getValue();
                             String timestamp = ""+ds.child("timestamp").getValue();
                             String sender = ""+ds.child("sender").getValue();
+                            String messageType = ""+ds.child("type").getValue();
+
+                            if (messageType.equals("image")){
+                                holder.messageTv.setText("Sent Photo...");
+                            }else {
+                                holder.messageTv.setText(message);
+                            }
 
                             Calendar cal = Calendar.getInstance(Locale.ENGLISH);
                             cal.setTimeInMillis(Long.parseLong(timestamp));
                             String dateTime = DateFormat.format("hh:mm aa", cal).toString();
 
-                            holder.messageTv.setText(message);
                             holder.timeTv.setText(dateTime);
 
                             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
