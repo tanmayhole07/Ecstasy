@@ -70,7 +70,7 @@ public class AdapterChat extends RecyclerView.Adapter<AdapterChat.MyHolder> {
 
         Calendar cal = Calendar.getInstance(Locale.ENGLISH);
         cal.setTimeInMillis(Long.parseLong(timeStamp));
-        String dateTime = DateFormat.format("hh:mm aa", cal).toString();
+        String dateTime = DateFormat.format("dd/mm/yyyy hh:mm aa", cal).toString();
 
         if (type.equals("text")){
             myHolder.messageTv.setVisibility(View.VISIBLE);

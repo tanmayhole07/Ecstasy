@@ -64,7 +64,7 @@ public class AdapterGroupChat extends  RecyclerView.Adapter<AdapterGroupChat.Hol
 
         Calendar cal = Calendar.getInstance(Locale.ENGLISH);
         cal.setTimeInMillis(Long.parseLong(timestamp));
-        String dateTime = DateFormat.format("hh:mm aa", cal).toString();
+        String dateTime = DateFormat.format("dd/mm/yyyy hh:mm aa", cal).toString();
 
         if (messageType.equals("text")){
             holder.messageTv.setVisibility(View.VISIBLE);

@@ -97,7 +97,7 @@ public class AdapterGroupChatList extends RecyclerView.Adapter<AdapterGroupChatL
 
                             Calendar cal = Calendar.getInstance(Locale.ENGLISH);
                             cal.setTimeInMillis(Long.parseLong(timestamp));
-                            String dateTime = DateFormat.format("hh:mm aa", cal).toString();
+                            String dateTime = DateFormat.format("dd/mm/yyyy hh:mm aa", cal).toString();
 
                             holder.timeTv.setText(dateTime);
 
