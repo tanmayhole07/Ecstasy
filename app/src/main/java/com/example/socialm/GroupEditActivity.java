@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -29,16 +30,25 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
-public class GroupCreateActivity extends AppCompatActivity {
+public class GroupEditActivity extends AppCompatActivity {
 
+    private ActionBar actionBar;
+
+    private String groupId;
 
     private static final int CAMERA_REQUEST_CODE = 100;
     private static final int STORAGE_REQUEST_CODE = 200;
@@ -50,66 +60,92 @@ public class GroupCreateActivity extends AppCompatActivity {
     private String[] storagePermissions;
 
     private Uri image_uri = null;
-    private ActionBar actionBar;
+
     private FirebaseAuth firebaseAuth;
 
     private ImageView groupIconIv;
     private EditText groupTitleEt, groupDescriptionEt;
-    private FloatingActionButton createGroupBtn;
+    private FloatingActionButton updateGroupBtn;
 
     private ProgressDialog progressDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_create);
+        setContentView(R.layout.activity_group_edit);
 
         actionBar = getSupportActionBar();
-        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setTitle("Edit Group");
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setSubtitle("Create Group");
+        actionBar.setDisplayShowHomeEnabled(true);
 
         groupIconIv = findViewById(R.id.groupIconIv);
         groupTitleEt = findViewById(R.id.groupTitleEt);
         groupDescriptionEt = findViewById(R.id.groupDescriptionEt);
-        createGroupBtn = findViewById(R.id.createGroupBtn);
+        updateGroupBtn = findViewById(R.id.updateGroupBtn);
+
+        groupId = getIntent().getStringExtra("groupId");
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Please wait");
+        progressDialog.setCanceledOnTouchOutside(false);
 
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-
         firebaseAuth = FirebaseAuth.getInstance();
         checkUser();
+        loadGroupInfo();
 
         groupIconIv.setOnClickListener(view -> showImagePichDialog());
 
-        createGroupBtn.setOnClickListener(view -> startCreatingGroup());
+        updateGroupBtn.setOnClickListener(view -> startUpdatingGroup());
 
     }
 
-    private void startCreatingGroup() {
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Creating group");
+    private void startUpdatingGroup() {
 
         String groupTitle = groupTitleEt.getText().toString().trim();
         String groupDescription = groupDescriptionEt.getText().toString().trim();
 
         if (TextUtils.isEmpty(groupTitle)){
-            Toast.makeText(this, "Please enter group title ...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Group title is required...", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        progressDialog.setMessage("Updating Group Info");
         progressDialog.show();
 
-        String g_timestamp = ""+System.currentTimeMillis();
+        if (image_uri == null) {
 
-        if (image_uri == null){
-            createGroupBtn(""+g_timestamp,""+groupTitle,""+groupDescription,"");
+
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("groupTitle", groupTitle);
+            hashMap.put("groupDescription", groupDescription);
+
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Groups");
+            ref.child(groupId).updateChildren(hashMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            progressDialog.dismiss();
+                            Toast.makeText(GroupEditActivity.this, "Group Info Updated", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(GroupEditActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }else {
 
-            String fileNameAndPath = "Group_Imgs/" + "image" + g_timestamp;
+            String timestamp = ""+System.currentTimeMillis();
 
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference(fileNameAndPath);
+            String filePathAndName = "Group_Imgs/"+"image"+"_"+timestamp;
+
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(filePathAndName);
             storageReference.putFile(image_uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -118,7 +154,28 @@ public class GroupCreateActivity extends AppCompatActivity {
                             while (!p_uriTask.isSuccessful());
                             Uri p_downloadUri = p_uriTask.getResult();
                             if (p_uriTask.isSuccessful()){
-                                createGroupBtn(""+g_timestamp,""+groupTitle,""+groupDescription,""+p_downloadUri);
+
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("groupTitle", groupTitle);
+                                hashMap.put("groupDescription", groupDescription);
+                                hashMap.put("groupIcon", ""+p_downloadUri);
+
+                                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Groups");
+                                ref.child(groupId).updateChildren(hashMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(GroupEditActivity.this, "Group Info Updated", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(GroupEditActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
 
                             }
                         }
@@ -127,60 +184,47 @@ public class GroupCreateActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(GroupCreateActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GroupEditActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
     }
 
-    private void createGroupBtn(String g_timestamp, String groupTitle, String groupDescription, String groupIcon) {
-
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("groupId", ""+g_timestamp);
-        hashMap.put("groupTitle", ""+groupTitle);
-        hashMap.put("groupDescription", ""+groupDescription);
-        hashMap.put("groupIcon", ""+groupIcon);
-        hashMap.put("timestamp", ""+g_timestamp);
-        hashMap.put("createdBy", ""+firebaseAuth.getUid());
-
+    private void loadGroupInfo() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Groups");
-        ref.child(g_timestamp).setValue(hashMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
+        ref.orderByChild("groupId").equalTo(groupId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot ds : snapshot.getChildren()){
 
-                        HashMap<String, String> hashMap1 = new HashMap<>();
-                        hashMap1.put("uid", firebaseAuth.getUid());
-                        hashMap1.put("role", "creator");
-                        hashMap1.put("timestamp",g_timestamp);
+                    String groupId = ""+ds.child("groupId").getValue();
+                    String groupTitle = ""+ds.child("groupTitle").getValue();
+                    String groupDescription = ""+ds.child("groupDescription").getValue();
+                    String groupIcon = ""+ds.child("groupIcon").getValue();
+                    String createdBy = ""+ds.child("createdBy").getValue();
+                    String timestamp = ""+ds.child("timestamp").getValue();
 
-                        DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference("Groups");
-                        ref1.child(g_timestamp).child("Participants").child(firebaseAuth.getUid())
-                                .setValue(hashMap1)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        progressDialog.dismiss();
-                                        Toast.makeText(GroupCreateActivity.this, "Group created", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        progressDialog.dismiss();
-                                        Toast.makeText(GroupCreateActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                    Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+                    cal.setTimeInMillis(Long.parseLong(timestamp));
+                    String dateTime = DateFormat.format("hh:mm aa", cal).toString();
+
+
+                    groupTitleEt.setText(groupTitle);
+                    groupDescriptionEt.setText(groupDescription);
+
+                    try {
+                        Picasso.get().load(groupIcon).placeholder(R.drawable.ic_group_primary).into(groupIconIv);
+                    }catch (Exception e){
+                        groupIconIv.setImageResource(R.drawable.ic_group_primary);
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
-                        Toast.makeText(GroupCreateActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void showImagePichDialog() {
@@ -231,7 +275,7 @@ public class GroupCreateActivity extends AppCompatActivity {
     }
 
     private boolean checkStoragePermission() {
-        boolean result = ContextCompat.checkSelfPermission(GroupCreateActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        boolean result = ContextCompat.checkSelfPermission(GroupEditActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == (PackageManager.PERMISSION_GRANTED);
         return result;
     }
@@ -243,9 +287,9 @@ public class GroupCreateActivity extends AppCompatActivity {
     }
 
     private boolean checkCameraPermission() {
-        boolean result = ContextCompat.checkSelfPermission(GroupCreateActivity.this, Manifest.permission.CAMERA)
+        boolean result = ContextCompat.checkSelfPermission(GroupEditActivity.this, Manifest.permission.CAMERA)
                 == (PackageManager.PERMISSION_GRANTED);
-        boolean result1 = ContextCompat.checkSelfPermission(GroupCreateActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        boolean result1 = ContextCompat.checkSelfPermission(GroupEditActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == (PackageManager.PERMISSION_GRANTED);
         return result && result1;
     }
@@ -261,12 +305,6 @@ public class GroupCreateActivity extends AppCompatActivity {
         if (user != null){
             actionBar.setSubtitle(user.getEmail());
         }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return super.onSupportNavigateUp();
     }
 
     @Override
@@ -314,5 +352,10 @@ public class GroupCreateActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
+    }
 
 }

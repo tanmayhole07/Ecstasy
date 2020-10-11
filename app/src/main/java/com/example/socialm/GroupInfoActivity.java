@@ -1,19 +1,24 @@
 package com.example.socialm;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.socialm.adapters.AdapterParticipantsAdd;
 import com.example.socialm.models.ModelUsers;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,6 +77,86 @@ public class GroupInfoActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        editGroupIv.setOnClickListener(view -> {
+            Intent intent = new Intent(GroupInfoActivity.this, GroupEditActivity.class);
+            intent.putExtra("groupId",groupId);
+            startActivity(intent);
+        });
+
+        leaveGroupTv.setOnClickListener(view -> {
+            String dialogTitle ="";
+            String dialogDescription="";
+            String positiveButtonTitle ="";
+            if (myGroupRole.equals("creator")){
+                dialogTitle="Delete Group";
+                dialogDescription="Do you want to Delete Group permanently ?";
+                positiveButtonTitle="DELETE";
+            }else {
+                dialogTitle="Leave Group";
+                dialogDescription="Do you want to Leave Group permanently ?";
+                positiveButtonTitle="DELETE";
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(GroupInfoActivity.this);
+            builder.setTitle(dialogTitle)
+                    .setMessage(dialogDescription)
+                    .setPositiveButton(positiveButtonTitle, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (myGroupRole.equals("creator")){
+                                deleteGroup();
+                            }else {
+                                leaveGroup();
+                            }
+                        }
+                    })
+                    .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).show();
+        });
+
+    }
+
+    private void leaveGroup() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Groups");
+        ref.child(groupId).child("Participants").child(firebaseAuth.getUid())
+                .removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(GroupInfoActivity.this, "Group left successfully...", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(GroupInfoActivity.this, DashboardActivity.class));
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(GroupInfoActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void deleteGroup() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Groups");
+        ref.child(groupId)
+                .removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(GroupInfoActivity.this, "Group Successfully Deleted", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(GroupInfoActivity.this, DashboardActivity.class));
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(GroupInfoActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void loadGroupInfo() {
